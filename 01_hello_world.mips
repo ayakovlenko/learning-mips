@@ -1,22 +1,45 @@
 .data
 
   out_string:
-    .asciiz "Hello, World!\n"
+    .asciiz "Hello, World!"
+
+  newline:
+    .asciiz "\n"
 
 .text
 
+  _macros:
+
+    .macro print(%s)
+      # load address of string to be printed into $a0
+      la $a0, %s
+      # system call code for printing string = 4
+      li $v0, 4
+      # call operating system to perform operation in $v0
+      syscall
+    .end_macro
+
+    .macro println(%s)
+      print(%s)
+      print(newline)
+    .end_macro
+
+    .macro exit_with_err(%code)
+      # 17 is exit with error
+      li $v0, 17
+      # set error code to 1
+      la $a0, %code
+      # call operating system
+      syscall
+    .end_macro
+
+    .macro exit_ok
+      li $v0, 10
+      syscall
+    .end_macro
+
   main:
 
-    # system call code for printing string = 4
-    li $v0, 4
-    # load address of string to be printed into $a0
-    la $a0, out_string
-    # call operating system to perform operation in $v0
-    syscall
-
-    # 17 is exit with error
-    li $v0, 17
-    # set error code to 1
-    la $a0, 1
-    # call operating system
-    syscall
+    println(out_string)
+    println(out_string)
+    exit_ok()
