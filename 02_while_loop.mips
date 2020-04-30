@@ -1,0 +1,53 @@
+.data
+
+  newline: .asciiz "\n"
+
+.text
+
+  _macros:
+
+    .macro exit_ok
+      li $v0, 10
+      syscall
+    .end_macro
+
+    # params:
+    #   %s: register
+    .macro print_num(%s)
+      move $a0, %s
+      li $v0, 1
+      syscall
+    .end_macro
+
+    .macro print(%s)
+      # load address of string to be printed into $a0
+      la $a0, %s
+      # system call code for printing string = 4
+      li $v0, 4
+      # call operating system to perform operation in $v0
+      syscall
+    .end_macro
+
+  main:
+
+    # int i = 0;
+    # it j = i + 10;
+    # while (i < j) {
+    #   print(i);
+    #   print('\n');
+    # }
+
+    li $t0, 0
+    add $t1, $t0, 10
+    while:
+      bge $t0, $t1, end_while
+
+      print_num($t0)
+      print(newline)
+
+      addi $t0, $t0, 1
+      j while
+
+    end_while:
+
+    exit_ok()
