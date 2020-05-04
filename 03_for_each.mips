@@ -1,0 +1,39 @@
+.data
+
+  xs: .word 4, 8, 15, 16, 23, 42
+
+  nl: .asciiz "\n"
+
+.text
+
+  _macros:
+
+    .macro print_num(%s)
+      move $a0, %s
+      li $v0, 1
+      syscall
+    .end_macro
+
+    .macro print(%s)
+      la $a0, %s
+      li $v0, 4
+      syscall
+    .end_macro
+
+  main:
+
+    li $t0, 0 # int i = 0
+    la $t1, xs
+
+    loop_begin:
+      bgt $t0, 5, loop_end # while (i < 5)
+
+      lw $t2, ($t1)
+      print_num($t2)
+      print(nl)
+
+      addi $t0, $t0, 1 # i++
+      addi $t1, $t1, 4
+
+      j loop_begin
+    loop_end:
