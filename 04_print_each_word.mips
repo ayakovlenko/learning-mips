@@ -1,6 +1,6 @@
 .data
 
-  str: .asciiz "The quick brown fox jumps over the lazy dog"
+  str: .asciiz "What I cannot create, I do not understand."
 
 .text
 
@@ -23,15 +23,35 @@
       syscall
     .end_macro
 
+    .macro inc(%r)
+      addi %r, %r, 1
+    .end_macro
+
+    .macro dec(%r)
+      addi %r, %r, -1
+    .end_macro
+
   main:
+
+    # strlen_begin
+    la $t0, str
+    li $t3, 0 # length
+
+    strlen_loop_begin:
+      lb $t1, ($t0)
+      beq $t1 '\0', strlen_loop_end
+      inc($t3)
+      inc($t0)
+      j strlen_loop_begin
+    strlen_loop_end:
+    dec($t3) # minus '\0' symbol
+    # strlen_end
 
     li $t0, 0 # int i = 0
     la $t1, str
 
-    li $t3, 42 # int n = 42
-
     loop_begin:
-      bgt $t0, $t3, loop_end # while (i < n)
+      bgt $t0, $t3, loop_end # while (i < n - 1)
 
       lb $t2, ($t1) # string is a sequence of bytes, therefore use lb
       print_char($t2)
