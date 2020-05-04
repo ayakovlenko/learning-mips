@@ -1,0 +1,49 @@
+.data
+
+  str: .asciiz "The quick brown fox jumps over the lazy dog"
+
+.text
+
+  _macros:
+
+    .macro print_char(%s)
+      move $a0, %s
+      li $v0, 11
+      syscall
+    .end_macro
+
+    .macro linebreak
+      la $a0, '\n'
+      li $v0, 11
+      syscall
+    .end_macro
+
+    .macro exit_ok
+      li $v0, 10
+      syscall
+    .end_macro
+
+  main:
+
+    li $t0, 0 # int i = 0
+    la $t1, str
+
+    li $t3, 42 # int n = 42
+
+    loop_begin:
+      bgt $t0, $t3, loop_end # while (i < n)
+
+      lb $t2, ($t1) # string is a sequence of bytes, therefore use lb
+      print_char($t2)
+
+      bne $t2, ' ', no_line_break
+      linebreak()
+      no_line_break:
+
+      addi $t0, $t0, 1 # i++
+      addi $t1, $t1, 1 # move by sizeof(byte)
+
+      j loop_begin
+    loop_end:
+
+    exit_ok()
