@@ -20,6 +20,11 @@
       syscall
     .end_macro
 
+    .macro exit_ok
+      li $v0, 10
+      syscall
+    .end_macro
+
   main:
 
     li $t0, 0 # int i = 0
@@ -37,3 +42,5 @@
 
       j loop_begin
     loop_end:
+
+    exit_ok()
