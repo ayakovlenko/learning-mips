@@ -1,0 +1,96 @@
+.data
+
+  bin_num: .asciiz "10001"
+
+.text
+
+  macros:
+    .macro inc(%r)
+      addi %r, %r, 1
+    .end_macro
+
+  main:
+    la $a0, bin_num
+    jal convert
+
+    move $a0, $v0
+    li   $v0, 1
+    syscall
+
+    # successful exit
+    li $v0, 10
+    syscall
+
+  convert:
+    # params:
+    #   $a0 - address of a binary number as string
+    #
+    # return:
+    #   $v0 - decimal number as int
+
+    addi $sp, $sp, -4 # allocate space in stack
+    sw   $ra, ($sp)   # store previous pc
+
+    jal strlen
+
+    la   $t0, ($a0)  # addr
+    move $t1, $zero  # i = 0
+    subi $t2, $v0, 1 # n = strlen($a0) - 1
+
+    li $v0, 0
+    loop_begin:
+      bgt $t1, $t2, loop_end
+
+      lb   $t3, ($t0) # load a byte from addr into $t3
+      subi $t3, $t3, '0'
+
+      beq $t3, 0, loop_continue # skip 0 bits
+
+      # <<
+      sub  $t4, $t2, $t1 # current power
+      sllv $t3, $t3, $t4 # shift 1 by the current power
+
+      add  $t5, $t5, $t3
+
+      # debug_begin
+        # move $a0, $t3
+        # li   $v0, 1
+        # syscall
+        # addi $a0, $zero, '\n'
+        # li   $v0, 11
+        # syscall
+      # debug_end
+
+      loop_continue:
+      addi $t0, $t0, 1
+      addi $t1, $t1, 1
+
+      j loop_begin
+    loop_end:
+
+    lw   $ra, ($sp)  # restore the pc
+    addi $sp, $sp, 4 # deallocate space in stack
+
+    move $v0, $t5
+    jr $ra
+
+  strlen:
+    # params:
+    #   $a0 - string address
+    #
+    # return:
+    #   $v0 - string length
+
+    move $t0, $a0 # addr
+    li   $v0, 0   # length
+
+    lb $t1, ($t0)
+    strlen_loop_begin:
+      beq $t1 '\0', strlen_loop_end
+      inc($v0)
+      inc($t0)
+      lb $t1, ($t0)
+      j strlen_loop_begin
+    strlen_loop_end:
+
+    jr $ra
