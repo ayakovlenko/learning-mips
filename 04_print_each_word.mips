@@ -46,7 +46,7 @@
     li $t0, 0 # int i = 0
     la $t1, str
 
-    dec($t3) # since we iterate from 0, we must end when i < len(s) - 1
+    dec($t3) # since we iterate from 0, we must end while i < len(s) - 1
     loop_begin:
       bgt $t0, $t3, loop_end # while (i < n - 1)
 
